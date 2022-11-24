@@ -77,10 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: _newTime,
             child: Text('New time', style: _textStyle()),
           ),
-          ElevatedButton(
-            onPressed: _submit,
-            child: Text('Submit', style: _textStyle()),
-          ),
+          if (_time != null)
+            ElevatedButton(
+              onPressed: _submit,
+              child: Text('Submit', style: _textStyle()),
+            ),
         ],
       );
 
@@ -99,9 +100,28 @@ class _HomeScreenState extends State<HomeScreen> {
       final tempDir = await getTemporaryDirectory();
       File file = await File('${tempDir.path}/image.png').create();
       await file.writeAsBytes(imageUint);
-      await _resultService.getTestResult(file.path);
+      final correctPercentage = await _resultService.getTestResult(
+        imagePath: file.path,
+        time: _time!,
+      );
+      await _showResultDialog(correctPercentage);
     }
   }
+
+  Future<void> _showResultDialog(String correctPercentage) async =>
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Test result'),
+          content: Text('Your answer is correct for $correctPercentage %'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: Navigator.of(context).pop,
+              child: const Text('Ok'),
+            ),
+          ],
+        ),
+      );
 
   @override
   void dispose() {

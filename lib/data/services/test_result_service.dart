@@ -8,7 +8,10 @@ class TestResultService {
     );
   }
 
-  Future<void> getTestResult(String imagePath) async {
+  Future<String> getTestResult({
+    required String imagePath,
+    required int time,
+  }) async {
     final output = await Tflite.runModelOnImage(
       path: imagePath,
       numResults: 12,
@@ -16,7 +19,12 @@ class TestResultService {
       imageMean: 127.5,
       imageStd: 127.5,
     );
-    print(output);
+    if (output != null) {
+      final first = output.first;
+      if (first['label'] != '$time' || first['label'] == '0') return '0';
+      return (first['confidence'] * 100).toStringAsFixed(2);
+    }
+    return '0';
   }
 
   Future<void> dispose() async {
