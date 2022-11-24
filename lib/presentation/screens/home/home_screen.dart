@@ -1,7 +1,12 @@
+import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:dementia_test/data/services/test_result_service.dart';
 import 'package:flutter/material.dart';
 import 'package:painter/painter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,13 +17,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int? _time;
+  late final TestResultService _resultService;
+  late final ScreenshotController _screenshotController;
   late final PainterController _painterController;
 
   @override
   void initState() {
+    _resultService = TestResultService();
+    _screenshotController = ScreenshotController();
     _painterController = PainterController();
     _painterController.thickness = 10;
     _painterController.backgroundColor = Colors.transparent;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _resultService.loadModel();
+    });
     super.initState();
   }
 
@@ -37,11 +49,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _clock() => SizedBox(
         height: 400,
-        child: Stack(
-          children: [
-            Center(child: Image.asset('assets/clock.png')),
-            Painter(_painterController),
-          ],
+        child: Screenshot(
+          controller: _screenshotController,
+          child: Stack(
+            children: [
+              Center(child: Image.asset('assets/clock.png')),
+              Painter(_painterController),
+            ],
+          ),
         ),
       );
 
@@ -50,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: _time != null
             ? Text(
                 "Please, draw $_time o'clock on the clock",
-                style: _textStyle().copyWith(fontWeight: FontWeight.w600),
+                style: _textStyle().copyWith(fontWeight: FontWeight.w700),
               )
             : null,
       );
@@ -78,7 +93,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _submit() {}
+  void _submit() async {
+    Uint8List? imageUint = await _screenshotController.capture();
+    if (imageUint != null) {
+      final tempDir = await getTemporaryDirectory();
+      File file = await File('${tempDir.path}/image.png').create();
+      await file.writeAsBytes(imageUint);
+      await _resultService.getTestResult(file.path);
+    }
+  }
 
   @override
   void dispose() {
