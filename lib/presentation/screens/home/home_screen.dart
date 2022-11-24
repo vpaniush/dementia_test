@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_state_notifier/flutter_state_notifier.dart';
-import 'package:scribble/scribble.dart';
+import 'package:painter/painter.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late ScribbleNotifier notifier;
+  late final PainterController _controller;
 
   @override
   void initState() {
-    notifier = ScribbleNotifier(
-      widths: [10],
-    );
+    _controller = PainterController();
+    _controller.thickness = 5.0;
+    _controller.backgroundColor = Colors.transparent;
     super.initState();
   }
 
@@ -26,54 +23,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: const Icon(Icons.save),
-          tooltip: "Save to Image",
-          onPressed: () => _saveImage(context),
-        ),
+        title: const Text('Painter Example'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _controller.clear,
+          ),
+        ],
       ),
       body: Stack(
         children: [
-          Scribble(
-            notifier: notifier,
-            drawPen: true,
+          Center(
+            child: Container(
+              height: 100,
+              width: 100,
+              color: Colors.amber,
+            ),
           ),
-          Positioned(
-            top: 16,
-            right: 16,
-            child: _buildColorToolbar(context),
-          )
+          Painter(_controller),
         ],
       ),
     );
   }
 
-  Future<void> _saveImage(BuildContext context) async {
-    final image = await notifier.renderImage();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Your Image"),
-        content: Image.memory(image.buffer.asUint8List()),
-      ),
-    );
-  }
-
-  Widget _buildColorToolbar(BuildContext context) {
-    return StateNotifierBuilder<ScribbleState>(
-      stateNotifier: notifier,
-      builder: (context, state, _) => _buildClearButton(context),
-    );
-  }
-
-  Widget _buildClearButton(BuildContext context) {
-    return FloatingActionButton.small(
-      tooltip: "Clear",
-      onPressed: notifier.clear,
-      disabledElevation: 0,
-      backgroundColor: Colors.blueGrey,
-      child: const Icon(Icons.clear),
-    );
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
