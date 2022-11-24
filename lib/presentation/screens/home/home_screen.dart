@@ -9,42 +9,42 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int? _hour;
   late final PainterController _controller;
 
   @override
   void initState() {
     _controller = PainterController();
-    _controller.thickness = 5.0;
+    _controller.thickness = 10;
     _controller.backgroundColor = Colors.transparent;
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Painter Example'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _controller.clear,
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          Center(
-            child: Container(
-              height: 100,
-              width: 100,
-              color: Colors.amber,
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Dementia Test'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: _controller.clear,
             ),
-          ),
-          Painter(_controller),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+        body: Column(
+          children: [
+            SizedBox(
+              height: 400,
+              child: Stack(
+                children: [
+                  Center(child: Image.asset('assets/clock.png')),
+                  Painter(_controller),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
 
   @override
   void dispose() {
