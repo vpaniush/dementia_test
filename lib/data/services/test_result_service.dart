@@ -14,7 +14,7 @@ class TestResultService {
   }) async {
     final output = await Tflite.runModelOnImage(
       path: imagePath,
-      numResults: 12,
+      numResults: 13,
       threshold: 0.1,
       imageMean: 127.5,
       imageStd: 127.5,

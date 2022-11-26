@@ -39,11 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(title: const Text('Dementia Test')),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _task(),
-            _clock(),
-            _buttons(),
-          ],
+          children: [_task(), _clock(), _buttons()],
         ),
       );
 
